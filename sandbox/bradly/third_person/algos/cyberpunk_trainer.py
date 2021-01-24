@@ -142,10 +142,9 @@ class CyberPunkTrainer:
                 classes_batch = classes[batch_step: batch_step+self.batch_size]
                 domains_batch = domains[batch_step: batch_step+self.batch_size]
                 targets = dict(classes=classes_batch, domains=domains_batch)
-
                 batch_losses.append(self.disc.train(data_batch, targets))
                 lab_acc.append(self.disc.get_lab_accuracy(data_batch, targets['classes']))
-            print('loss is ' + str(np.mean(np.array(batch_losses))))
+            print('Domain loss is ' + str(np.mean(np.array(batch_losses)))+' variance '+str(np.var(np.array(batch_losses))))
             print('acc is ' + str(np.mean(np.array(lab_acc))))
 
     def shuffle_to_training_data(self, expert_data, on_policy_data, expert_fail_data):

@@ -57,7 +57,7 @@ algo = TRPO(
   
 with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
 
-    algo.n_itr = 40
+    algo.n_itr = 0
     algo.start_itr = 0
     algo.train(sess=sess)
  
@@ -84,7 +84,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
     iterations = 10
 
     for iter_step in range(0, iterations):
-        trainer.take_iteration(n_trajs_cost=12, n_trajs_policy=12)
+        trainer.take_iteration(n_trajs_cost=1200, n_trajs_policy=1200)
         trainer.log_and_finish()
 
     trainer.log_and_finish()

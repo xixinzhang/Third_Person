@@ -436,7 +436,7 @@ class DomainConfusionVelocityDiscriminator(Discriminator):
 
         fc_output = self.get_mlp_layers(conv_out_features_concat, n_mlp_layers, dim_hidden_class, name_prefix='targets')
 
-        self.class_loss = self.get_loss_layer(pred=fc_output, target_output=targets)
+        class_loss = self.get_loss_layer(pred=fc_output, target_output=targets)
 
         self.class_target = targets
         self.nn_input_one = nn_input_one
@@ -461,7 +461,7 @@ class DomainConfusionVelocityDiscriminator(Discriminator):
         self.dom_accuracy = tf.reduce_mean(tf.cast(dom_accuracy, tf.float32))
 
         # Final loss and optimizer
-        self.loss = 0.2*self.dom_loss + self.class_loss
+        self.loss = 0.2*self.dom_loss + class_loss
         self.optimizer = self.get_optimizer(self.loss)
 
     def get_loss_layer(self, pred, target_output):
@@ -613,7 +613,7 @@ class DomainConfusionDiscriminator(Discriminator):
 
         fc_output = self.get_mlp_layers(conv_one_features, n_mlp_layers, dim_hidden_class, name_prefix='targets')
 
-        self.class_loss = self.get_loss_layer(pred=fc_output, target_output=targets)
+        class_loss = self.get_loss_layer(pred=fc_output, target_output=targets)
 
         self.class_target = targets
         self.nn_input = nn_input_one
@@ -637,7 +637,7 @@ class DomainConfusionDiscriminator(Discriminator):
         self.dom_accuracy = tf.reduce_mean(tf.cast(dom_accuracy, tf.float32))
 
         # Final loss and optimizer
-        self.loss = self.class_loss #self.dom_loss + self.class_loss
+        self.loss = class_loss #self.dom_loss + class_loss
         self.optimizer = self.get_optimizer(self.loss)
 
     def get_loss_layer(self, pred, target_output):
