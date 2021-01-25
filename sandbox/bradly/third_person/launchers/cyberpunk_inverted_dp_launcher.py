@@ -3,7 +3,8 @@
 # display.start()
 import os
 import sys
-sys.path.append('/home/wmingd/Projects/third_person_im/')
+# sys.path.append('/home/wmingd/Projects/third_person_im/')
+sys.path.append('/home/asus/Workspace/GAIL_TD3/Third_Person/')
 import tensorflow as tf
 from tqdm import trange
 from sandbox.rocky.tf.algos.trpo import TRPO
@@ -16,6 +17,7 @@ from sandbox.rocky.tf.envs.base import TfEnv
 from sandbox.bradly.third_person.policy.random_policy import RandomPolicy
 from sandbox.bradly.third_person.algos.cyberpunk_trainer import CyberPunkTrainer
 from sandbox.bradly.third_person.policy.expert_inverted_dp import load_expert_inverted_dp
+from sandbox.bradly.third_person.envs.pendulum_gym import GymPendulumEnv
 from sandbox.bradly.third_person.envs.inverted_dp import InvertedPendulumEnv
 from sandbox.bradly.third_person.envs.inverted_dp_two import InvertedPendulumTwoEnv
 from sandbox.bradly.third_person.discriminators.discriminator import DomainConfusionVelocityDiscriminator
@@ -24,7 +26,7 @@ from sandbox.bradly.third_person.discriminators.discriminator import DomainConfu
 # display = Display(visible=0, size=(400, 300))
 # display.start()
 
-expert_env = TfEnv(normalize(InvertedPendulumEnv()))
+expert_env = TfEnv(normalize(GymPendulumEnv()))
 novice_env = TfEnv(normalize(InvertedPendulumTwoEnv(), normalize_obs=True))
 expert_fail_pol = RandomPolicy(expert_env.spec)
 
