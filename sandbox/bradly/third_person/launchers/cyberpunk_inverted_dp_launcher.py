@@ -3,9 +3,8 @@
 # display.start()
 import os
 import sys
-sys.path.append('/home/wmingd/Projects/third_person_im/')
+sys.path.append('/home/asus/Workspace/Third_Person/')
 import tensorflow as tf
-from tqdm import trange
 from sandbox.rocky.tf.algos.trpo import TRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.normalized_env import normalize
@@ -87,4 +86,4 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
         trainer.take_iteration(n_trajs_cost=1200, n_trajs_policy=1200)
         trainer.log_and_finish()
 
-    trainer.log_and_finish()
+    # trainer.log_and_finish()

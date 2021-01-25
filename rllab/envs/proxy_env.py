@@ -25,6 +25,10 @@ class ProxyEnv(Env):
 
     def render(self, *args, **kwargs):
         return self._wrapped_env.render(*args, **kwargs)
+    
+    def close(self):
+        return self._wrapped_env.close()
+    
 
     def log_diagnostics(self, paths):
         self._wrapped_env.log_diagnostics(paths)

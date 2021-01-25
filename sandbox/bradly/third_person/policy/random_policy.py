@@ -8,6 +8,7 @@ import numpy as np
 class RandomPolicy:
     def __init__(self, env_sepc):
         self.action_size = env_sepc.action_space.flat_dim
+        # self.action_size = 1
 
     def get_action(self, o=None):
         return np.random.randn(self.action_size), dict()

@@ -1,10 +1,7 @@
 name: rllab3
 channels:
-    - https://conda.anaconda.org/kne 
-    - https://conda.binstar.org/tlatorre 
-    - https://conda.anaconda.org/cjs14
-    - https://conda.anaconda.org/menpo
-    - jjhelmus
+    - conda-forge
+    - defaults
 dependencies:
     - python==3.5.2
     - numpy==1.10.4

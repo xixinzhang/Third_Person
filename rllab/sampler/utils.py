@@ -2,6 +2,12 @@ import numpy as np
 from rllab.misc import tensor_utils
 import time
 
+from sandbox.rocky.tf.envs.base import TfEnv
+
+def unwrap(env):
+  if isinstance(env, TfEnv):
+    return unwrap(env.wrapped_env)
+  return env
 
 def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1):
     observations = []
@@ -31,7 +37,8 @@ def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1):
             timestep = 0.05
             time.sleep(timestep / speedup)
     if animated:
-        env.render(close=True)
+        # env.render(close=True)
+        env.wrapped_env.close()
 
     return dict(
         observations=tensor_utils.stack_tensor_list(observations),

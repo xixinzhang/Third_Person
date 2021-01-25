@@ -64,7 +64,7 @@ class CyberPunkTrainer:
             paths.append(self.cyberpunk_rollout(agent=pol, env=env, max_path_length=self.horizon,
                                                 reward_extractor=None))
         # for p in paths:
-        #     print(p['im_observations'].shape)
+        #     tqdm.write(str(p['im_observations'].shape))
         data_matrix = tensor_utils.stack_tensor_list([p['im_observations'] for p in paths])
         class_matrix = np.tile(cls, (n_trajs, self.horizon, 1))
         dom_matrix = np.tile(dom, (n_trajs, self.horizon, 1))
@@ -88,6 +88,7 @@ class CyberPunkTrainer:
         return paths
 
     def take_iteration(self, n_trajs_cost, n_trajs_policy):
+        tqdm.write('#'*40+' iteration '+str(self.iteration)+' '+'#'*40)
         expert_data = self.collect_trajs_for_cost(n_trajs=n_trajs_cost, pol=self.expert_success_pol,
                                                   env=self.expert_env,
                                                   dom=self.expert_basis, cls=self.expert_basis)
@@ -121,11 +122,10 @@ class CyberPunkTrainer:
         self.novice_policy_training_algo.optimize_policy(itr=self.iteration, samples_data=policy_training_samples)
 
         self.iteration += 1
-        print(self.iteration)
 
     def log_and_finish(self):
-        print('true rews were ' + str(self.true_rew_means))
-        print('gan rews were ' + str(self.gan_rew_means))
+        tqdm.write('true rews were ' + str(self.true_rew_means))
+        tqdm.write('gan rews were ' + str(self.gan_rew_means))
         #import pickle
         #pickle
 
@@ -144,8 +144,8 @@ class CyberPunkTrainer:
                 targets = dict(classes=classes_batch, domains=domains_batch)
                 batch_losses.append(self.disc.train(data_batch, targets))
                 lab_acc.append(self.disc.get_lab_accuracy(data_batch, targets['classes']))
-            print('Domain loss is ' + str(np.mean(np.array(batch_losses)))+' variance '+str(np.var(np.array(batch_losses))))
-            print('acc is ' + str(np.mean(np.array(lab_acc))))
+            tqdm.write('Domain loss is ' + str(np.mean(np.array(batch_losses)))+' variance '+str(np.var(np.array(batch_losses))))
+            tqdm.write('acc is ' + str(np.mean(np.array(lab_acc))))
 
     def shuffle_to_training_data(self, expert_data, on_policy_data, expert_fail_data):
         data = np.vstack([expert_data['data'], on_policy_data['data'], expert_fail_data['data']])
