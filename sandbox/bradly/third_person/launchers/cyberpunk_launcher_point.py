@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/wmingd/Projects/third_person_im/')
+sys.path.append('/home/asus/Workspace/Third_Person/')
 from sandbox.rocky.tf.algos.trpo import TRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.normalized_env import normalize
