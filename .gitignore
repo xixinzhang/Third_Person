@@ -1,0 +1,4 @@
+**/*.pyc
+**/__pycache__
+MUJOCO_LOG.TXT
+*.png

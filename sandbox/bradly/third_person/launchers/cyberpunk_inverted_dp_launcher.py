@@ -125,7 +125,8 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
     sns.set_theme()
     df = DataFrame(eval_res)
     plot =sns.lineplot(data=df,x='iter',y='reward',ci="sd")
-    # plot.xaxis.set_major_locator(ticker.LinearLocator(iterations+1))
+    locator = ticker.MultipleLocator(2)
+    plot.xaxis.set_major_locator(locator)
     fig=plot.get_figure()
     fig.savefig('res_cartpole.png')
 

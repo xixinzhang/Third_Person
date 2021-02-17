@@ -124,13 +124,14 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
     sns.set_theme()
     df = DataFrame(eval_res)
     plot =sns.lineplot(data=df,x='iter',y='reward',ci="sd")
-    # plot.xaxis.set_major_locator(ticker.LinearLocator(iterations+1))
+    locator = ticker.MultipleLocator(5)
+    plot.xaxis.set_major_locator(locator)
     fig=plot.get_figure()
     fig.savefig('res_reacher.png')
 
-    res_policy = load_expert_reacher(f='stu_reacher.pickle')
-    ckpt_path=trainer.collect_trajs_for_policy(n_trajs=50, pol=res_policy, env=trainer.novice_policy_env)
-    ckpt_rew = [sum(path['true_rewards']) for path in ckpt_path]
-    ckpt_rew =sum(ckpt_rew)/len(ckpt_rew)
-    print("best ckpt test reward: ",ckpt_rew)
+    # res_policy = load_expert_reacher(f='stu_reacher.pickle')
+    # ckpt_path=trainer.collect_trajs_for_policy(n_trajs=50, pol=res_policy, env=trainer.novice_policy_env)
+    # ckpt_rew = [sum(path['true_rewards']) for path in ckpt_path]
+    # ckpt_rew =sum(ckpt_rew)/len(ckpt_rew)
+    # print("best ckpt test reward: ",ckpt_rew)
 
