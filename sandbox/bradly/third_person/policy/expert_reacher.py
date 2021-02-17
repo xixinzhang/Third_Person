@@ -1,3 +1,5 @@
+import sys
+sys.path.append('//home/asus/Workspace/Third_Person')
 from sandbox.rocky.tf.algos.trpo import TRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.normalized_env import normalize
@@ -6,12 +8,15 @@ from sandbox.rocky.tf.optimizers.conjugate_gradient_optimizer import FiniteDiffe
 from sandbox.rocky.tf.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.rocky.tf.envs.base import TfEnv
 from sandbox.bradly.third_person.envs.reacher import ReacherEnv
+from sandbox.bradly.third_person.envs.reacher_two import ReacherTwoEnv
 #from sandbox.bradly.third_person.envs.reacher_two import ReacherTwoEnv as ReacherEnv
 from rllab.sampler.utils import rollout
 import pickle
 import tensorflow as tf
 import numpy as np
-
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
+gpu_options = tf.GPUOptions(allow_growth=True)
 
 def generate_expert_reacher():
     env = TfEnv(normalize(ReacherEnv()))
@@ -41,32 +46,32 @@ def generate_expert_reacher():
 
     )
 
-    with tf.Session() as sess:
+    with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
         algo.train(sess=sess)
 
         t = rollout(env=env, agent=policy, max_path_length=50, animated=True)
         print(sum(t['rewards']))
         with open('expert_reacher.pickle', 'wb') as handle:
             pickle.dump(policy, handle)
-        while True:
-            t = rollout(env=env, agent=policy, max_path_length=50, animated=True)
+        # while True:
+        #     t = rollout(env=env, agent=policy, max_path_length=50, animated=True)
 
 
-def load_expert_reacher(env, sess):
-    with open('expert_reacher.pickle', 'rb') as handle:
+def load_expert_reacher(f='expert_reacher.pickle'):
+    with open(f, 'rb') as handle:
         policy = pickle.load(handle)
     return policy
 
-def test_expert_reacher():
-    with tf.Session() as sess:
-        env = TfEnv(normalize(ReacherEnv()))
-        expert = load_expert_reacher(env, sess)
-        while True:
+def test_expert_reacher(file='expert_reacher.pickle'):
+    with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
+        env = TfEnv(normalize(ReacherEnv(size=50)))
+        expert = load_expert_reacher(file)
+        for i in range(1):
             t = rollout(env=env, agent=expert, max_path_length=50, animated=True)
             print(np.mean(sum(t['rewards'])))
 
 
 if __name__ == '__main__':
-    #generate_expert_reacher()
-    test_expert_reacher()
+    # generate_expert_reacher()
+    test_expert_reacher(file='stu_reacher.pickle')
 

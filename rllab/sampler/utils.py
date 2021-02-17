@@ -3,7 +3,7 @@ from rllab.misc import tensor_utils
 import time
 
 from sandbox.rocky.tf.envs.base import TfEnv
-
+from PIL import Image
 def unwrap(env):
   if isinstance(env, TfEnv):
     return unwrap(env.wrapped_env)
@@ -19,7 +19,9 @@ def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1):
     agent.reset()
     path_length = 0
     if animated:
-        env.render()
+        img=env.render()
+        # img = Image.fromarray(img)
+        # img.save('check.png')
     while path_length < max_path_length:
         a, agent_info = agent.get_action(o)
         next_o, r, d, env_info = env.step(a)
@@ -33,12 +35,15 @@ def rollout(env, agent, max_path_length=np.inf, animated=False, speedup=1):
             break
         o = next_o
         if animated:
-            env.render()
+            img= env.render()
+            img = Image.fromarray(img)
+            img.save('check{}.png'.format(path_length))
+            # raise
             timestep = 0.05
             time.sleep(timestep / speedup)
     if animated:
-        # env.render(close=True)
-        env.wrapped_env.close()
+        env.render(close=True)
+        # env.wrapped_env.close()
 
     return dict(
         observations=tensor_utils.stack_tensor_list(observations),

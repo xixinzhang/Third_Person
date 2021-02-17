@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/wmingd/Projects/third_person_im/')
+sys.path.append('//home/asus/Workspace/Third_Person')
 from sandbox.rocky.tf.algos.trpo import TRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.normalized_env import normalize
@@ -11,7 +11,10 @@ from sandbox.bradly.third_person.envs.inverted_dp import InvertedPendulumEnv
 from rllab.sampler.utils import rollout
 import pickle
 import tensorflow as tf
-
+import numpy as np
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
+gpu_options = tf.GPUOptions(allow_growth=True)
 
 def generate_expert_dp():
     env = TfEnv(normalize(InvertedPendulumEnv()))
@@ -55,9 +58,18 @@ def load_expert_inverted_dp(f='expert_dp.pickle'):
 
     return policy
 
+def test_expert_reacher(file='expert_reacher.pickle'):
+    with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
+        env = TfEnv(normalize(InvertedPendulumEnv(size=500)))
+        expert = load_expert_inverted_dp(file)
+        for i in range(10):
+            t = rollout(env=env, agent=expert, max_path_length=50, animated=True)
+            print(np.mean(sum(t['rewards'])))
+
 
 if __name__ == '__main__':
-    generate_expert_dp()
+    # generate_expert_dp()
+    test_expert_reacher('expert_dp.pickle')
     #with tf.Session() as sess:
     #    env = TfEnv(normalize(InvertedPendulumEnv()))
     #    expert = load_expert_reacher(env, sess)

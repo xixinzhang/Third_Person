@@ -11,7 +11,8 @@ class ReacherTwoEnv(MujocoEnv, Serializable):
 
     FILE = 'reacher.xml'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,size=50, *args, **kwargs):
+        self.size=size
         super(ReacherTwoEnv, self).__init__(*args, **kwargs)
         Serializable.quick_init(self, locals())
 
@@ -32,7 +33,7 @@ class ReacherTwoEnv(MujocoEnv, Serializable):
 
     def get_viewer(self):
         if self.viewer is None:
-            self.viewer = MjViewer(init_width=25, init_height=25)
+            self.viewer = MjViewer(init_width=self.size, init_height=self.size)
             self.viewer.start()
             self.viewer.set_model(self.model)
         return self.viewer

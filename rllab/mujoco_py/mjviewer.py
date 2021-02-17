@@ -76,6 +76,7 @@ class MjViewer(object):
         self.cam.lookat[1] = self.model.stat.center[1]
         self.cam.lookat[2] = self.model.stat.center[2]
         self.cam.distance = 0.5 * self.model.stat.extent
+        # self.cam.distance = self.model.stat.extent
         self.cam.camid = -1
         self.cam.trackbodyid = 1
         width, height = self.get_dimensions()

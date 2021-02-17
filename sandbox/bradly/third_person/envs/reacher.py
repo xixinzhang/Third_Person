@@ -10,7 +10,8 @@ class ReacherEnv(MujocoEnv, Serializable):
 
     FILE = 'reacher.xml'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, size=50,*args, **kwargs):
+        self.size = size
         super(ReacherEnv, self).__init__(*args, **kwargs)
         Serializable.quick_init(self, locals())
         self.goal = None
@@ -36,7 +37,7 @@ class ReacherEnv(MujocoEnv, Serializable):
 
     def get_viewer(self):
         if self.viewer is None:
-            self.viewer = MjViewer(init_width=25, init_height=25)
+            self.viewer = MjViewer(init_width=self.size, init_height=self.size)
             self.viewer.start()
             self.viewer.set_model(self.model)
             self.viewer.cam.elevation = -20.59999990463257

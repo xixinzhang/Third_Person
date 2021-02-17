@@ -7,6 +7,10 @@ from rllab.sampler.base import BaseSampler
 from sandbox.rocky.tf.envs.base import TfEnv
 from tqdm import trange
 from  tqdm import tqdm
+import pickle
+from PIL import Image
+import time
+
 
 def unwrap(env):
   if isinstance(env, TfEnv):
@@ -56,6 +60,10 @@ class CyberPunkTrainer:
 
         self.gan_rew_means = []
         self.true_rew_means = []
+        self.gan_rew_std=[]
+        self.true_rew_std = []
+        
+        
 
     def collect_trajs_for_cost(self, n_trajs, pol, env, dom, cls):
         paths = []
@@ -110,22 +118,32 @@ class CyberPunkTrainer:
         gan_rew_mean = np.mean(np.array([path['rewards'] for path in policy_training_paths]))
         gan_rew_std = np.std(np.array([path['rewards'] for path in policy_training_paths]))
         tqdm.write('on policy GAN reward is ' + str(gan_rew_mean))
+        tqdm.write('on policy GAN reward std is ' + str(gan_rew_std))
         true_rew_mean = np.mean(np.array([sum(path['true_rewards']) for path in policy_training_paths]))
+        true_rew_std = np.std(np.array([sum(path['true_rewards']) for path in policy_training_paths]))
         tqdm.write('on policy True reward is ' + str(true_rew_mean))
+        tqdm.write('on policy True reward std is ' + str(true_rew_std))
 
         self.true_rew_means.append(true_rew_mean)
         self.gan_rew_means.append(gan_rew_mean)
+        self.true_rew_std.append(true_rew_std)
+        self.gan_rew_std.append(gan_rew_std)
 
         #for path in policy_training_paths:
         #    path['rewards'] = (path['rewards'] - gan_rew_mean)/gan_rew_std
         policy_training_samples = self.sampler.process_samples(itr=self.iteration, paths=policy_training_paths)
         self.novice_policy_training_algo.optimize_policy(itr=self.iteration, samples_data=policy_training_samples)
-
+        
         self.iteration += 1
+
+        return policy_training_paths
+
 
     def log_and_finish(self):
         tqdm.write('true rews were ' + str(self.true_rew_means))
+        tqdm.write('true rews std were ' + str(self.true_rew_std))
         tqdm.write('gan rews were ' + str(self.gan_rew_means))
+        tqdm.write('gan rews std were ' + str(self.gan_rew_std))
         #import pickle
         #pickle
 
@@ -186,7 +204,8 @@ class CyberPunkTrainer:
         path_length = 0
 
         if animated:
-            env.render()
+            img =env.render()
+            time.sleep(1)
         else:
             env.render(mode='robot')
         while path_length < max_path_length:
@@ -203,6 +222,8 @@ class CyberPunkTrainer:
             o = next_o
             if animated:
                 im = env.render()
+                # img = Image.fromarray(im)
+                # img.save("check{}.png".format(path_length))
                 im_observations.append(im)
             else:
                 im = env.render(mode='robot')
@@ -222,6 +243,7 @@ class CyberPunkTrainer:
             for iter_step in range(0, obs_pls_three.shape[0]):  # cant figure out how to do this with indexing.
                 idx_plus_three = min(iter_step+3, obs_pls_three.shape[0]-1)
                 obs_pls_three[iter_step, :, :, :] = im_observations[idx_plus_three, :, :, :]
+            # print('*'*40,np.amax(im_observations[0]),'*'*40)
             rewards = reward_extractor.get_reward(data=[im_observations, obs_pls_three], softmax=True)[:, 0]  # this is the prob of being an expert.
             #print(rewards)
         else:

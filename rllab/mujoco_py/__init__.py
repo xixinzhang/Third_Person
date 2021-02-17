@@ -7,4 +7,4 @@ from .mjconstants import *
 # register_license(os.path.join(os.path.dirname(__file__),
 #                               '~/.mujoco/mjkey.txt'))
 
-register_license('/home/wmingd/.mujoco/mjkey.txt')
+register_license('/home/asus/.mujoco/mjkey.txt')
