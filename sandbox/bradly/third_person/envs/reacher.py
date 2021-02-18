@@ -8,7 +8,7 @@ from rllab.mujoco_py import MjViewer
 
 class ReacherEnv(MujocoEnv, Serializable):
 
-    FILE = 'reacher.xml'
+    FILE = 'myreacher_expert.xml'
 
     def __init__(self, size=50,*args, **kwargs):
         self.size = size

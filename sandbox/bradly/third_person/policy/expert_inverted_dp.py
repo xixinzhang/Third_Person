@@ -52,7 +52,7 @@ def generate_expert_dp():
         while True:
             rollout(env=env, agent=policy, max_path_length=100, animated=False)
 
-def load_expert_inverted_dp(f='expert_dp.pickle'):
+def load_expert(f='expert_dp.pickle'):
     with open(f, 'rb') as handle:
         policy = pickle.load(handle)
 

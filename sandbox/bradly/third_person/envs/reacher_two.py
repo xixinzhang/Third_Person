@@ -9,7 +9,7 @@ from rllab.mujoco_py import MjViewer
 
 class ReacherTwoEnv(MujocoEnv, Serializable):
 
-    FILE = 'reacher.xml'
+    FILE = 'myreacher_student.xml'
 
     def __init__(self,size=50, *args, **kwargs):
         self.size=size
