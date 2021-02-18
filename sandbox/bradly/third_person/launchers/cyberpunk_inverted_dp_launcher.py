@@ -1,6 +1,7 @@
 import os
 import sys
-sys.path.append('/home/asus/Workspace/Third_Person/')
+# sys.path.append('/home/asus/Workspace/Third_Person/')
+sys.path.append('/home/wmingd/Projects/Third_Person')
 from sandbox.rocky.tf.algos.trpo import TRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.normalized_env import normalize
@@ -21,6 +22,7 @@ import tensorflow as tf
 from pandas import DataFrame
 import seaborn as sns
 import matplotlib.ticker as ticker
+import matplotlib.pyplot as plt
 import pickle
 import random
 import numpy as np
@@ -33,15 +35,16 @@ def seed_tensorflow(seed=42):
     np.random.seed(seed)
     tf.set_random_seed(seed)
 
-seed =40
-im_size = 100
+exp_idx=1
+seed =2000
+im_size = 50
 im_channels = 3
-n_trajs_cost=10
-n_trajs_policy=10
-iterations=10
+n_trajs_cost=120
+n_trajs_policy=120
+iterations=100
 
 seed_tensorflow(seed)
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 gpu_options = tf.GPUOptions(allow_growth=True)
 
 expert_env = TfEnv(normalize(InvertedPendulumEnv(size=im_size)))
@@ -97,7 +100,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
                                expert_env=expert_env, novice_policy=policy,
                                novice_policy_opt_algo=algo, expert_success_pol=expert_policy,
                                im_width=im_size, im_height=im_size, im_channels=im_channels,
-                               tf_sess=sess, horizon=50)    
+                               tf_sess=sess, horizon=50,seed =exp_idx)    
     # iterations = 10
 
     eval_res={'iter':[], 'reward':[]}
@@ -106,32 +109,35 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
     bestpol = copy.deepcopy(policy)
     for iter_step in range(0, iterations):
         train_path=trainer.take_iteration(n_trajs_cost=n_trajs_cost, n_trajs_policy=n_trajs_policy)
-        true_rew = [sum(path['true_rewards']) for path in train_path]
-        eval_res['iter']+=[iter_step]*len(true_rew)
-        eval_res['reward']+=true_rew
+        # true_rew = [sum(path['true_rewards']) for path in train_path]
+        # eval_res['iter']+=[iter_step]*len(true_rew)
+        # eval_res['reward']+=true_rew
         trainer.log_and_finish()
 
         pol=trainer.novice_policy
-        ckpt_path=trainer.collect_trajs_for_policy(n_trajs=10, pol=pol, env=trainer.novice_policy_env)
+        ckpt_path=trainer.collect_trajs_for_policy(n_trajs=10, pol=pol, env=trainer.novice_policy_env,animated=True)
         ckpt_rew = [sum(path['true_rewards']) for path in ckpt_path]
-        ckpt_rew =sum(ckpt_rew)/len(ckpt_rew)
-        if ckpt_rew> best_rew:
-            best_rew = ckpt_rew
+        eval_res['iter']+=[iter_step]*len(ckpt_rew)
+        eval_res['reward']+=ckpt_rew
+        ckpt_rew_mean =sum(ckpt_rew)/len(ckpt_rew)
+        if ckpt_rew_mean> best_rew:
+            best_rew = ckpt_rew_mean
             bestpol = copy.deepcopy(pol)
-            with open('stu_cartpole.pickle', 'wb') as handle:
+            with open(f'stu_cartpole_{seed}_v{exp_idx}.pickle', 'wb') as handle:
                 pickle.dump(bestpol, handle)
         print("current best rew: ",best_rew)
-    
-    sns.set_theme()
-    df = DataFrame(eval_res)
-    plot =sns.lineplot(data=df,x='iter',y='reward',ci="sd")
-    locator = ticker.MultipleLocator(2)
-    plot.xaxis.set_major_locator(locator)
-    fig=plot.get_figure()
-    fig.savefig('res_cartpole.png')
 
-    res_policy = load_expert_inverted_dp(f='stu_cartpole.pickle')
-    ckpt_path=trainer.collect_trajs_for_policy(n_trajs=50, pol=res_policy, env=trainer.novice_policy_env)
-    ckpt_rew = [sum(path['true_rewards']) for path in ckpt_path]
-    ckpt_rew =sum(ckpt_rew)/len(ckpt_rew)
-    print("best ckpt test reward: ",ckpt_rew)
+        plt.figure()
+        sns.set_theme()
+        df = DataFrame(eval_res)
+        plot =sns.lineplot(data=df,x='iter',y='reward',ci="sd")
+        locator = ticker.MultipleLocator(2)
+        plot.xaxis.set_major_locator(locator)
+        fig=plot.get_figure()
+        fig.savefig(f'res_cartpole_{seed}_v{exp_idx}.png')
+
+    # res_policy = load_expert_inverted_dp(f='stu_cartpole.pickle')
+    # ckpt_path=trainer.collect_trajs_for_policy(n_trajs=50, pol=res_policy, env=trainer.novice_policy_env)
+    # ckpt_rew = [sum(path['true_rewards']) for path in ckpt_path]
+    # ckpt_rew =sum(ckpt_rew)/len(ckpt_rew)
+    # print("best ckpt test reward: ",ckpt_rew)

@@ -20,7 +20,7 @@ def unwrap(env):
 class CyberPunkTrainer:
     def __init__(self, disc, novice_policy_env, expert_env, novice_policy, novice_policy_opt_algo,
                  expert_success_pol, expert_fail_pol, im_width, im_height, im_channels=3, tf_sess=None,
-                 horizon=None):
+                 horizon=None,seed=0):
 
         #from rllab.sampler.utils import rollout
         #while True:
@@ -62,6 +62,7 @@ class CyberPunkTrainer:
         self.true_rew_means = []
         self.gan_rew_std=[]
         self.true_rew_std = []
+        self.seed=seed
         
         
 
@@ -88,11 +89,11 @@ class CyberPunkTrainer:
 
         return dict(data=data_matrix, classes=class_matrix, domains=dom_matrix)
 
-    def collect_trajs_for_policy(self, n_trajs, pol, env):
+    def collect_trajs_for_policy(self, n_trajs, pol, env,animated=True):
         paths = []
         for iter_step in trange(0, n_trajs):
             paths.append(self.cyberpunk_rollout(agent=pol, env=env, max_path_length=self.horizon,
-                                                reward_extractor=self.disc))
+                                                reward_extractor=self.disc,animated=animated))
         return paths
 
     def take_iteration(self, n_trajs_cost, n_trajs_policy):
@@ -205,7 +206,7 @@ class CyberPunkTrainer:
 
         if animated:
             img =env.render()
-            time.sleep(1)
+            time.sleep(1.5)
         else:
             env.render(mode='robot')
         while path_length < max_path_length:
@@ -223,7 +224,7 @@ class CyberPunkTrainer:
             if animated:
                 im = env.render()
                 # img = Image.fromarray(im)
-                # img.save("check{}.png".format(path_length))
+                # img.save(f"check{path_length}_{self.seed}.png")
                 im_observations.append(im)
             else:
                 im = env.render(mode='robot')
