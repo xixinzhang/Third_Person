@@ -20,7 +20,7 @@ def unwrap(env):
 class CyberPunkTrainer:
     def __init__(self, disc, novice_policy_env, expert_env, novice_policy, novice_policy_opt_algo,
                  expert_success_pol, expert_fail_pol, im_width, im_height, im_channels=3, tf_sess=None,
-                 horizon=None,seed=0):
+                 horizon=None,seed=0, n_trajs_cost=12000):
 
         #from rllab.sampler.utils import rollout
         #while True:
@@ -55,7 +55,7 @@ class CyberPunkTrainer:
         #expert_fails = 20
         #self.expert_fail_data = self.collect_trajs_for_cost(expert_fails, self.expert_fail_pol, self.expert_env,
         #                                                    dom=self.expert_basis, cls=self.novice_basis)
-        self.expert_fail_data = None
+        # self.expert_fail_data = None
         self.sampler = BaseSampler(self.novice_policy_training_algo)
 
         self.gan_rew_means = []
@@ -63,6 +63,13 @@ class CyberPunkTrainer:
         self.gan_rew_std=[]
         self.true_rew_std = []
         self.seed=seed
+        self.expert_data= self.collect_trajs_for_cost(n_trajs=n_trajs_cost, pol=self.expert_success_pol,
+                                                  env=self.expert_env,
+                                                  dom=self.expert_basis, cls=self.expert_basis)
+        self.expert_fail_data = self.collect_trajs_for_cost(n_trajs_cost, self.expert_fail_pol, 
+                                                            self.expert_env,
+                                                            dom=self.expert_basis, cls=self.novice_basis)
+
         
         
 
@@ -98,17 +105,17 @@ class CyberPunkTrainer:
 
     def take_iteration(self, n_trajs_cost, n_trajs_policy):
         tqdm.write('#'*40+' iteration '+str(self.iteration)+' '+'#'*40)
-        expert_data = self.collect_trajs_for_cost(n_trajs=n_trajs_cost, pol=self.expert_success_pol,
-                                                  env=self.expert_env,
-                                                  dom=self.expert_basis, cls=self.expert_basis)
+        # expert_data = self.collect_trajs_for_cost(n_trajs=n_trajs_cost, pol=self.expert_success_pol,
+        #                                           env=self.expert_env,
+        #                                           dom=self.expert_basis, cls=self.expert_basis)
         on_policy_data = self.collect_trajs_for_cost(n_trajs=n_trajs_cost, pol=self.novice_policy,
                                                      env=self.novice_policy_env,
                                                      dom=self.novice_basis, cls=self.novice_basis)
-        self.expert_fail_data = self.collect_trajs_for_cost(n_trajs_cost, self.expert_fail_pol, 
-                                                            self.expert_env,
-                                                            dom=self.expert_basis, cls=self.novice_basis)
+        # self.expert_fail_data = self.collect_trajs_for_cost(n_trajs_cost, self.expert_fail_pol, 
+        #                                                     self.expert_env,
+        #                                                     dom=self.expert_basis, cls=self.novice_basis)
 
-        training_data_one, training_data_two, training_doms, training_classes = self.shuffle_to_training_data(expert_data,
+        training_data_one, training_data_two, training_doms, training_classes = self.shuffle_to_training_data(self.expert_data,
                                                                                                               on_policy_data,
                                                                                                               self.expert_fail_data)
 
@@ -117,18 +124,18 @@ class CyberPunkTrainer:
         policy_training_paths = self.collect_trajs_for_policy(n_trajs_policy, pol=self.novice_policy,
                                                               env=self.novice_policy_env)
         gan_rew_mean = np.mean(np.array([path['rewards'] for path in policy_training_paths]))
-        gan_rew_std = np.std(np.array([path['rewards'] for path in policy_training_paths]))
+        # gan_rew_std = np.std(np.array([path['rewards'] for path in policy_training_paths]))
         tqdm.write('on policy GAN reward is ' + str(gan_rew_mean))
-        tqdm.write('on policy GAN reward std is ' + str(gan_rew_std))
+        # tqdm.write('on policy GAN reward std is ' + str(gan_rew_std))
         true_rew_mean = np.mean(np.array([sum(path['true_rewards']) for path in policy_training_paths]))
-        true_rew_std = np.std(np.array([sum(path['true_rewards']) for path in policy_training_paths]))
+        # true_rew_std = np.std(np.array([sum(path['true_rewards']) for path in policy_training_paths]))
         tqdm.write('on policy True reward is ' + str(true_rew_mean))
-        tqdm.write('on policy True reward std is ' + str(true_rew_std))
+        # tqdm.write('on policy True reward std is ' + str(true_rew_std))
 
         self.true_rew_means.append(true_rew_mean)
         self.gan_rew_means.append(gan_rew_mean)
-        self.true_rew_std.append(true_rew_std)
-        self.gan_rew_std.append(gan_rew_std)
+        # self.true_rew_std.append(true_rew_std)
+        # self.gan_rew_std.append(gan_rew_std)
 
         #for path in policy_training_paths:
         #    path['rewards'] = (path['rewards'] - gan_rew_mean)/gan_rew_std
@@ -142,9 +149,9 @@ class CyberPunkTrainer:
 
     def log_and_finish(self):
         tqdm.write('true rews were ' + str(self.true_rew_means))
-        tqdm.write('true rews std were ' + str(self.true_rew_std))
+        # tqdm.write('true rews std were ' + str(self.true_rew_std))
         tqdm.write('gan rews were ' + str(self.gan_rew_means))
-        tqdm.write('gan rews std were ' + str(self.gan_rew_std))
+        # tqdm.write('gan rews std were ' + str(self.gan_rew_std))
         #import pickle
         #pickle
 
@@ -206,7 +213,7 @@ class CyberPunkTrainer:
 
         if animated:
             img =env.render()
-            time.sleep(1.5)
+            time.sleep(0.4)
         else:
             env.render(mode='robot')
         while path_length < max_path_length:

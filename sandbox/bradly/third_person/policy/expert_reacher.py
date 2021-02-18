@@ -57,7 +57,7 @@ def generate_expert_reacher():
         #     t = rollout(env=env, agent=policy, max_path_length=50, animated=True)
 
 
-def load_expert_reacher(f='expert_reacher.pickle'):
+def load_expert(f='expert_reacher.pickle'):
     with open(f, 'rb') as handle:
         policy = pickle.load(handle)
     return policy
