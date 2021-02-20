@@ -33,10 +33,10 @@ def seed_tensorflow(seed=42):
     np.random.seed(seed)
     tf.set_random_seed(seed)
 
-exp_idx=2
+exp_idx=3
 seed =2000
 im_size = 50
-im_channels = 3
+im_channels =3
 n_trajs_cost=32
 n_trajs_policy=32
 iterations=5000
@@ -132,8 +132,8 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             sns.set_theme()
             df = DataFrame(res_np,columns=['epoch','reward'])
             plot =sns.lineplot(data=df,x='epoch',y='reward',ci="sd")
-            locator = ticker.MultipleLocator(2)
-            plot.xaxis.set_major_locator(locator)
+            # locator = ticker.MultipleLocator(2)
+            # plot.xaxis.set_major_locator(locator)
             plot.set_title('Cartpole Third Person')
             fig=plot.get_figure()
             fig.savefig(f'res_cartpole_{seed}_v{exp_idx}.png')

@@ -215,7 +215,8 @@ class CyberPunkTrainer:
             img =env.render()
             time.sleep(0.4)
         else:
-            env.render(mode='robot')
+            pass
+            # env.render(mode='robot')
         while path_length < max_path_length:
             a, agent_info = agent.get_action(o)
             next_o, r, d, env_info = env.step(a)
@@ -234,8 +235,9 @@ class CyberPunkTrainer:
                 # img.save(f"check{path_length}_{self.seed}.png")
                 im_observations.append(im)
             else:
-                im = env.render(mode='robot')
-                im_observations.append(im)
+                pass
+                # im = env.render(mode='robot')
+                # im_observations.append(im)
                 #timestep = 0.05
                 #time.sleep(timestep / speedup)
         if animated:
